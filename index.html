@@ -4,660 +4,619 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Peta Hasil Telaahan - Layout</title>
-
 <!--
-  ENGINE:
-  - Leaflet.js : engine tampilan peta
-  - Turf.js    : disiapkan untuk analisis spasial pada tahap berikutnya
-  Tidak menggunakan Esri.
+ENGINE:
+- Leaflet.js : engine tampilan peta
+- Turf.js : disiapkan untuk analisis spasial pada tahap berikutnya
+Tidak menggunakan Esri.
 -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;background:#eee;font-family:Arial,Helvetica,sans-serif;color:#111}
 button,input,textarea,select{font-family:inherit}
-
 #app{
-  width:100%;
-  height:100%;
-  min-height:700px;
-  padding:16px 20px;
-  background:#fff;
+width:100%;
+height:100%;
+min-height:700px;
+padding:16px 20px;
+background:#fff;
 }
-
 #sheet{
-  width:100%;
-  height:100%;
-  min-height:668px;
-  border:1px solid #222;
-  background:#fff;
-  display:grid;
-  grid-template-columns:minmax(0, 3.65fr) minmax(300px, 1.22fr);
-  gap:29px;
-  padding:24px 28px 24px 28px;
+width:100%;
+height:100%;
+min-height:668px;
+border:1px solid #222;
+background:#fff;
+display:grid;
+grid-template-columns:minmax(0, 3.65fr) minmax(300px, 1.22fr);
+gap:29px;
+padding:24px 28px 24px 28px;
 }
-
 /* =========================================================
-   PETA UTAMA
-   ========================================================= */
+PETA UTAMA
+========================================================= */
 #mapFrame {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  border: 1px solid #555;
-  overflow: visible;
-  background: radial-gradient(ellipse at 25% 25%,#496a4e 0,#1e3b2c 38%,#596d4b 60%,#79806c 100%);
+position: relative;
+min-width: 0;
+min-height: 0;
+border: 1px solid #555;
+overflow: visible;
+background: radial-gradient(ellipse at 25% 25%,#496a4e 0,#1e3b2c 38%,#596d4b 60%,#79806c 100%);
 }
-
 #map{
-  position:absolute;
-  inset:0;
-  z-index:1;
+position:absolute;
+inset:0;
+z-index:1;
 }
-
 #mapPlaceholder{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  background:
-    radial-gradient(ellipse at 20% 30%,rgba(28,63,41,.95),transparent 38%),
-    radial-gradient(ellipse at 63% 25%,rgba(67,92,54,.9),transparent 42%),
-    radial-gradient(ellipse at 36% 72%,rgba(20,55,35,.95),transparent 42%),
-    linear-gradient(115deg,#243e2c,#68765b 52%,#777c6c);
+position:absolute;
+inset:0;
+z-index:0;
+background:
+radial-gradient(ellipse at 20% 30%,rgba(28,63,41,.95),transparent 38%),
+radial-gradient(ellipse at 63% 25%,rgba(67,92,54,.9),transparent 42%),
+radial-gradient(ellipse at 36% 72%,rgba(20,55,35,.95),transparent 42%),
+linear-gradient(115deg,#243e2c,#68765b 52%,#777c6c);
 }
 #mapPlaceholder:after{
-  content:"BASemap belum dimuat";
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  color:#ffffff55;
-  font-size:12px;
-  letter-spacing:.4px;
+content:"BASemap belum dimuat";
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+color:#ffffff55;
+font-size:12px;
+letter-spacing:.4px;
 }
-
 /* =========================================================
-   KOORDINAT GRID / LABEL TEPI (PERBAIKAN)
-   ========================================================= */
+KOORDINAT GRID / LABEL TEPI (PERBAIKAN)
+========================================================= */
 .edge-coord {
-  position: absolute;
-  z-index: 600;
-  pointer-events: none;
-  font-size: 8px;
-  line-height: 1;
+position: absolute;
+z-index: 600;
+pointer-events: none;
+font-size: 8px;
+line-height: 1;
 }
-
 /* Wadah di 4 Tepi Bingkai Peta */
-.edge-top    { top: -18px; left: 0; right: 0; height: 18px; }
+.edge-top { top: -18px; left: 0; right: 0; height: 18px; }
 .edge-bottom { bottom: -18px; left: 0; right: 0; height: 18px; }
-.edge-left   { left: -36px; top: 0; bottom: 0; width: 34px; }
-.edge-right  { right: -36px; top: 0; bottom: 0; width: 34px; }
-
+.edge-left { left: -24px; top: 0; bottom: 0; width: 22px; }
+.edge-right { right: -24px; top: 0; bottom: 0; width: 22px; }
 /* Styling Umum Teks Angka Koordinat */
 .edge-top span,
 .edge-bottom span,
 .edge-left span,
 .edge-right span {
-  position: absolute;
-  font-size: 8px;
-  background: #ffffff;
-  padding: 1px 3px;
-  border-radius: 2px;
-  white-space: nowrap;
+position: absolute;
+font-size: 8px;
+background: #ffffff;
+padding: 1px 3px;
+border-radius: 2px;
+white-space: nowrap;
 }
-
 /* 1. SISi ATAS: Garis merah vertikal menunjuk ke bawah */
 .edge-top span {
-  top: 0;
-  transform: translateX(-50%);
+top: 0;
+transform: translateX(-50%);
 }
 .edge-top span:after {
-  content: "";
-  display: block;
-  width: 1.5px;
-  height: 4px;
-  background: #e21b1b;
-  margin: 1px auto 0;
+content: "";
+display: block;
+width: 1.5px;
+height: 4px;
+background: #e21b1b;
+margin: 1px auto 0;
 }
-
 /* 2. SISI BAWAH: Garis merah vertikal menunjuk ke atas */
 .edge-bottom span {
-  bottom: 0;
-  transform: translateX(-50%);
+bottom: 0;
+transform: translateX(-50%);
 }
 .edge-bottom span:before {
-  content: "";
-  display: block;
-  width: 1.5px;
-  height: 4px;
-  background: #e21b1b;
-  margin: 0 auto 1px;
+content: "";
+display: block;
+width: 1.5px;
+height: 4px;
+background: #e21b1b;
+margin: 0 auto 1px;
 }
-
-/* 3. SISI KIRI: Garis datar merah di sebelah KANAN angka (Menempel Bingkai) */
+/* 3. SISI KIRI: teks vertikal, garis merah datar menempel bingkai peta */
 .edge-left span {
-  right: 0;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
+right: 0;
+transform: translateY(-50%);
+display: flex;
+flex-direction: row;
+align-items: center;
+background: transparent;
+padding: 0;
+border-radius: 0;
+}
+.edge-left span .coordText {
+writing-mode: vertical-rl;
+transform: rotate(180deg);
+background: #fff;
+padding: 2px 1px;
+border-radius: 2px;
+white-space: nowrap;
 }
 .edge-left span:after {
-  content: "";
-  display: inline-block;
-  width: 5px;       /* Garis datar horizontal */
-  height: 1.5px;
-  background: #e21b1b;
-  margin-left: 3px;
+content: "";
+flex: 0 0 auto;
+display: inline-block;
+width: 5px; /* Garis datar horizontal, menempel ke bingkai peta */
+height: 1.5px;
+background: #e21b1b;
+margin-left: 2px;
 }
-
-/* 4. SISI KANAN: Garis datar merah di sebelah KIRI angka (Menempel Bingkai) */
+/* 4. SISI KANAN: teks vertikal, garis merah datar menempel bingkai peta */
 .edge-right span {
-  left: 0;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
+left: 0;
+transform: translateY(-50%);
+display: flex;
+flex-direction: row;
+align-items: center;
+background: transparent;
+padding: 0;
+border-radius: 0;
+}
+.edge-right span .coordText {
+writing-mode: vertical-rl;
+transform: rotate(180deg);
+background: #fff;
+padding: 2px 1px;
+border-radius: 2px;
+white-space: nowrap;
 }
 .edge-right span:before {
-  content: "";
-  display: inline-block;
-  width: 5px;       /* Garis datar horizontal */
-  height: 1.5px;
-  background: #e21b1b;
-  margin-right: 3px;
+content: "";
+flex: 0 0 auto;
+display: inline-block;
+width: 5px; /* Garis datar horizontal, menempel ke bingkai peta */
+height: 1.5px;
+background: #e21b1b;
+margin-right: 2px;
 }
-
 /* Tombol Tools Peta */
 .map-tools{
-  position:absolute;
-  z-index:1000;
-  left:10px;
-  top:10px;
-  display:flex;
-  gap:5px;
-  flex-wrap:wrap;
+position:absolute;
+z-index:1000;
+left:10px;
+top:10px;
+display:flex;
+gap:5px;
+flex-wrap:wrap;
 }
 .map-tools button{
-  border:1px solid #777;
-  background:#fff;
-  padding:5px 8px;
-  font-size:10px;
-  cursor:pointer;
-  box-shadow:0 1px 4px #0003;
+border:1px solid #777;
+background:#fff;
+padding:5px 8px;
+font-size:10px;
+cursor:pointer;
+box-shadow:0 1px 4px #0003;
 }
 .map-tools button:hover{background:#f3f3f3}
 #basemapInput,#geojsonInput{display:none}
-
 /* =========================================================
-   PANEL KANAN
-   ========================================================= */
+PANEL KANAN
+========================================================= */
 #infoPanel{
-  min-width:0;
-  height:100%;
-  border:1px solid #777;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  background:#fff;
+min-width:0;
+height:100%;
+border:1px solid #777;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+background:#fff;
 }
-
 #headerBlock{
-  text-align:center;
-  padding:10px 8px 7px;
-  flex:0 0 auto;
+text-align:center;
+padding:10px 8px 7px;
+flex:0 0 auto;
 }
 #headerBlock h1{
-  margin:0 0 2px;
-  font-size:18px;
-  font-weight:700;
+margin:0 0 2px;
+font-size:18px;
+font-weight:700;
 }
 #headerBlock .line{
-  font-size:11px;
-  line-height:1.23;
+font-size:11px;
+line-height:1.23;
 }
 .upper{text-transform:uppercase}
-
 #north{
-  height:82px;
-  position:relative;
-  flex:0 0 auto;
+height:82px;
+position:relative;
+flex:0 0 auto;
 }
 #north .n{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:10px}
 #north .s{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);font-size:10px}
 #north .w{position:absolute;top:39px;left:calc(50% - 29px);font-size:10px}
 #north .e{position:absolute;top:39px;left:calc(50% + 23px);font-size:10px}
 .compass{
-  position:absolute;
-  left:50%;top:30px;
-  transform:translateX(-50%);
-  width:30px;height:30px;
-  border:1px solid #111;border-radius:50%;
-  background:#fff;
+position:absolute;
+left:50%;top:30px;
+transform:translateX(-50%);
+width:30px;height:30px;
+border:1px solid #111;border-radius:50%;
+background:#fff;
 }
 .compass:before{
-  content:"";
-  position:absolute;
-  left:10px;top:1px;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:13px solid #111;
+content:"";
+position:absolute;
+left:10px;top:1px;
+border-left:5px solid transparent;
+border-right:5px solid transparent;
+border-bottom:13px solid #111;
 }
 .compass:after{
-  content:"";
-  position:absolute;
-  left:10px;bottom:1px;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-top:13px solid #aaa;
+content:"";
+position:absolute;
+left:10px;bottom:1px;
+border-left:5px solid transparent;
+border-right:5px solid transparent;
+border-top:13px solid #aaa;
 }
 .compass .cross{
-  position:absolute;left:14px;top:2px;width:1px;height:25px;background:#111;
-  transform:rotate(90deg);
+position:absolute;left:14px;top:2px;width:1px;height:25px;background:#111;
+transform:rotate(90deg);
 }
-
 .scaleBlock{
-  padding:0 14px 8px;
-  flex:0 0 auto;
+padding:0 14px 8px;
+flex:0 0 auto;
 }
 .scaleTitle{text-align:center;font-size:12px;margin-bottom:4px}
 .scale{
-  width:86%;
-  margin:auto;
-  position:relative;
+width:86%;
+margin:auto;
+position:relative;
 }
 .scaleLabels{
-  display:flex;
-  justify-content:space-between;
-  font-size:9px;
-  margin-bottom:3px;
+display:flex;
+justify-content:space-between;
+font-size:9px;
+margin-bottom:3px;
 }
 .scaleBar{
-  height:8px;
-  border:2px solid #111;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
+height:8px;
+border:2px solid #111;
+display:grid;
+grid-template-columns:repeat(4,1fr);
 }
 .scaleBar span:nth-child(odd){background:#111}
 .scaleUnit{text-align:right;font-size:8px;margin-top:1px}
-
 .meta{
-  border-top:1px solid #777;
-  padding:7px 10px;
-  font-size:9px;
-  line-height:1.35;
-  flex:0 0 auto;
+border-top:1px solid #777;
+padding:7px 10px;
+font-size:9px;
+line-height:1.35;
+flex:0 0 auto;
 }
 .metaRow{
-  display:grid;
-  grid-template-columns:105px 8px 1fr;
+display:grid;
+grid-template-columns:105px 8px 1fr;
 }
 .metaRow .colon{text-align:center}
-
 #letterBlock{min-height:67px}
-
 #legendBlock{
-  border-top:1px solid #777;
-  padding:11px 14px;
-  min-height:165px;
-  flex:0 0 auto;
+border-top:1px solid #777;
+padding:11px 14px;
+min-height:165px;
+flex:0 0 auto;
 }
 .blockTitle{
-  font-size:12px;
-  font-weight:bold;
-  text-decoration:underline;
-  letter-spacing:.2px;
-  margin-bottom:13px;
+font-size:12px;
+font-weight:bold;
+text-decoration:underline;
+letter-spacing:.2px;
+margin-bottom:13px;
 }
 .legendRow{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:17px;
-  font-size:10px;
+display:flex;
+align-items:center;
+gap:14px;
+margin-bottom:17px;
+font-size:10px;
 }
 .pinIcon{
-  width:18px;height:24px;position:relative;flex:0 0 18px;
+width:18px;height:24px;position:relative;flex:0 0 18px;
 }
 .pinIcon:before{
-  content:"";
-  position:absolute;
-  width:16px;height:16px;
-  left:1px;top:1px;
-  background:#e71919;
-  border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg);
+content:"";
+position:absolute;
+width:16px;height:16px;
+left:1px;top:1px;
+background:#e71919;
+border-radius:50% 50% 50% 0;
+transform:rotate(-45deg);
 }
 .pinIcon:after{
-  content:"";
-  position:absolute;
-  width:5px;height:5px;
-  left:7px;top:7px;
-  border-radius:50%;
-  background:#fff;
+content:"";
+position:absolute;
+width:5px;height:5px;
+left:7px;top:7px;
+border-radius:50%;
+background:#fff;
 }
 .statusLabel{
-  font-size:12px;
-  margin:2px 0 9px;
+font-size:12px;
+margin:2px 0 9px;
 }
 .statusRow{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  font-size:10px;
+display:flex;
+align-items:center;
+gap:14px;
+font-size:10px;
 }
 .statusCode{
-  border:1px solid #333;
-  min-width:42px;
-  text-align:center;
-  padding:2px 5px;
-  font-size:9px;
-  font-weight:bold;
+border:1px solid #333;
+min-width:42px;
+text-align:center;
+padding:2px 5px;
+font-size:9px;
+font-weight:bold;
 }
-
 #sourceBlock{
-  border-top:1px solid #777;
-  padding:11px 13px;
-  font-size:9px;
-  line-height:1.35;
-  flex:0 0 auto;
+border-top:1px solid #777;
+padding:11px 13px;
+font-size:9px;
+line-height:1.35;
+flex:0 0 auto;
 }
 #sourceBlock strong{font-size:10px}
-
 #indexMap{
-  margin:0 10px 10px;
-  border:1px solid #777;
-  height:175px;
-  min-height:175px;
-  position:relative;
-  overflow:hidden;
-  background:#fff;
-  flex:0 0 175px;
+margin:0 10px 10px;
+border:1px solid #777;
+height:175px;
+min-height:175px;
+position:relative;
+overflow:hidden;
+background:#fff;
+flex:0 0 175px;
 }
-
 #indexMapTitle{
-  position:absolute;
-  z-index:3;
-  top:7px;
-  left:10px;
-  background:#fff;
-  border:1px solid #aaa;
-  padding:3px 5px;
-  font-size:9px;
-  font-weight:bold;
-  line-height:1.25;
+position:absolute;
+z-index:3;
+top:7px;
+left:10px;
+background:#fff;
+border:1px solid #aaa;
+padding:3px 5px;
+font-size:9px;
+font-weight:bold;
+line-height:1.25;
 }
-
 #indexMapEmpty{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  color:#aaa;
-  font-size:10px;
-  text-align:center;
-  pointer-events:none;
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+color:#aaa;
+font-size:10px;
+text-align:center;
+pointer-events:none;
 }
-
 .coordLabel{
-  background:#ffffaa;
-  border:0;
-  border-radius:0;
-  box-shadow:none;
-  color:#111;
-  padding:4px 6px;
-  font-size:10px;
-  line-height:1.15;
-  white-space:nowrap;
+background:#ffffaa;
+border:0;
+border-radius:0;
+box-shadow:none;
+color:#111;
+padding:4px 6px;
+font-size:10px;
+line-height:1.15;
+white-space:nowrap;
 }
 .coordLabel:before{display:none!important}
-
 .aplText{
-  color:#fff;
-  font-size:22px;
-  font-weight:bold;
-  text-shadow:
-    -2px -2px 0 #333,2px -2px 0 #333,
-    -2px 2px 0 #333,2px 2px 0 #333,
-    0 0 4px #000;
+color:#fff;
+font-size:22px;
+font-weight:bold;
+text-shadow:
+-2px -2px 0 #333,2px -2px 0 #333,
+-2px 2px 0 #333,2px 2px 0 #333,
+0 0 4px #000;
 }
-
 #editor{
-  position:fixed;
-  z-index:3000;
-  left:14px;top:14px;
-  width:330px;
-  max-height:calc(100vh - 28px);
-  overflow:auto;
-  background:#fff;
-  border:1px solid #555;
-  box-shadow:0 5px 25px #0005;
-  display:none;
+position:fixed;
+z-index:3000;
+left:14px;top:14px;
+width:330px;
+max-height:calc(100vh - 28px);
+overflow:auto;
+background:#fff;
+border:1px solid #555;
+box-shadow:0 5px 25px #0005;
+display:none;
 }
 #editor.open{display:block}
 #editorHead{
-  background:#173b2b;color:#fff;
-  padding:11px 13px;
-  font-size:13px;font-weight:bold;
-  display:flex;justify-content:space-between;
+background:#173b2b;color:#fff;
+padding:11px 13px;
+font-size:13px;font-weight:bold;
+display:flex;justify-content:space-between;
 }
 #editorHead button{
-  background:none;border:0;color:#fff;font-size:20px;cursor:pointer;
+background:none;border:0;color:#fff;font-size:20px;cursor:pointer;
 }
 .formBody{padding:12px}
 .formBody label{
-  display:block;font-size:10px;font-weight:bold;margin:8px 0 3px;
+display:block;font-size:10px;font-weight:bold;margin:8px 0 3px;
 }
 .formBody input,.formBody textarea,.formBody select{
-  width:100%;border:1px solid #bbb;padding:7px;font-size:11px;
+width:100%;border:1px solid #bbb;padding:7px;font-size:11px;
 }
 .formBody button{
-  border:0;background:#173b2b;color:#fff;padding:8px 11px;
-  margin-top:9px;cursor:pointer;font-size:11px;
+border:0;background:#173b2b;color:#fff;padding:8px 11px;
+margin-top:9px;cursor:pointer;font-size:11px;
 }
 .fileNote{font-size:9px;color:#666;margin-top:4px}
-
 #openEditor{
-  position:fixed;z-index:2500;
-  left:14px;bottom:14px;
-  border:1px solid #555;background:#fff;
-  padding:9px 12px;box-shadow:0 2px 8px #0003;cursor:pointer;
-  font-size:11px;
+position:fixed;z-index:2500;
+left:14px;bottom:14px;
+border:1px solid #555;background:#fff;
+padding:9px 12px;box-shadow:0 2px 8px #0003;cursor:pointer;
+font-size:11px;
 }
-
 @media print{
-  html,body{background:#fff}
-  #app{padding:0}
-  #sheet{border:1px solid #222;min-height:0;height:100vh;padding:24px 28px}
-  #openEditor,.map-tools,#editor,#basemapMenu{display:none!important}
+html,body{background:#fff}
+#app{padding:0}
+#sheet{border:1px solid #222;min-height:0;height:100vh;padding:24px 28px}
+#openEditor,.map-tools,#editor,#basemapMenu{display:none!important}
 }
 </style>
 </head>
-
 <body>
 <div id="app">
-  <div id="sheet">
-
-    <!-- ====================== MAP ====================== -->
-    <section id="mapFrame">
-      <div id="mapPlaceholder"></div>
-      <div id="map"></div>
-
-      <!-- Wadah Koordinat Tepi -->
-		<div class="edge-coord edge-top" id="edgeTop"></div>
-		<div class="edge-coord edge-bottom" id="edgeBottom"></div>
-		<div class="edge-coord edge-left" id="edgeLeft"></div>
-		<div class="edge-coord edge-right" id="edgeRight"></div>
-
-      <!-- TOMBOL TOOLS PETA -->
-      <div class="map-tools">
-        <button onclick="document.getElementById('basemapInput').click()">+ Basemap Lokal</button>
-        <button onclick="pilihBasemapOnline()">🌐 Pilih Basemap Online</button>
-        <button onclick="document.getElementById('geojsonInput').click()">+ Kawasan GeoJSON</button>
-        <button onclick="fitAll()">Fit</button>
-      </div>
-
-      <!-- MENU BASEMAP ONLINE -->
-      <div id="basemapMenu" style="display:none; position:fixed; z-index:3000; left:14px; top:60px; background:#fff; border:1px solid #555; box-shadow:0 5px 25px #0005; padding:12px 16px; border-radius:8px;">
-        <div style="font-weight:bold; margin-bottom:8px;">Pilih Basemap:</div>
-        <button onclick="gantiBasemap('satellite')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🛰️ Google Satellite</button>
-        <button onclick="gantiBasemap('roadmap')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🗺️ Google Maps</button>
-        <button onclick="gantiBasemap('hybrid')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🌍 Google Hybrid</button>
-        <button onclick="gantiBasemap('none')" style="display:block; width:100%; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">❌ Hapus Basemap</button>
-        <button onclick="document.getElementById('basemapMenu').style.display='none'" style="display:block; width:100%; margin-top:8px; padding:6px; cursor:pointer; border:1px solid #aaa; border-radius:4px; background:#eee;">Tutup</button>
-      </div>
-
-      <!-- INPUT FILE -->
-      <input id="basemapInput" type="file" accept="image/*" onchange="loadBasemap(this)" style="display:none;">
-      <input id="geojsonInput" type="file" accept=".geojson,.json,application/geo+json" onchange="loadGeoJSON(this)" style="display:none;">
-    </section>
-
-    <!-- ====================== PANEL KANAN ====================== -->
-    <aside id="infoPanel">
-
-      <div id="headerBlock">
-        <h1>PETA HASIL TELAAHAN</h1>
-        <div class="line upper">STATUS LAHAN <span id="vNama">INUNG HARYANTO</span></div>
-        <div class="line">(SHM NOMOR : <span id="vNomor">2458/BUNDE</span>)</div>
-        <div class="line upper">DESA <span id="vDesa">BUNDE</span> KECAMATAN <span id="vKec">SAMPAGA</span></div>
-        <div class="line upper">KABUPATEN <span id="vKab">MAMUJU</span> PROVINSI SULAWESI BARAT</div>
-      </div>
-
-      <div id="north">
-        <span class="n">U</span>
-        <span class="w">B</span>
-        <span class="e">T</span>
-        <span class="s">S</span>
-        <div class="compass"><div class="cross"></div></div>
-      </div>
-
-      <div class="scaleBlock">
-        <div class="scaleTitle">SKALA&nbsp;&nbsp;1:1,000</div>
-        <div class="scale">
-          <div class="scaleLabels">
-            <span>0</span><span>12.5</span><span>25</span><span>50</span>
-          </div>
-          <div class="scaleBar"><span></span><span></span><span></span><span></span></div>
-          <div class="scaleUnit">Meter</div>
-        </div>
-      </div>
-
-      <div class="meta">
-        <div class="metaRow"><span>Proyeksi</span><span class="colon">:</span><span>Universal Transverse Mercator (UTM) Zone 50S</span></div>
-        <div class="metaRow"><span>Sistem Grid</span><span class="colon">:</span><span>Grid Geografi</span></div>
-        <div class="metaRow"><span>Datum Horizontal</span><span class="colon">:</span><span>WGS 84</span></div>
-      </div>
-
-      <div class="meta" id="letterBlock">
-        <div class="metaRow"><span>Lampiran Surat</span><span></span><span></span></div>
-        <div class="metaRow"><span>Nomor</span><span class="colon">:</span><span id="vNomor2">2458/BUNDE</span></div>
-        <div class="metaRow"><span>Tanggal</span><span class="colon">:</span><span id="vTanggal">-</span></div>
-      </div>
-
-      <div id="legendBlock">
-        <div class="blockTitle">KETERANGAN</div>
-
-        <div class="legendRow">
-          <div class="pinIcon"></div>
-          <span>Titik Koordinat a.n. <span id="vNama2">INUNG HARYANTO</span></span>
-        </div>
-
-        <div class="statusLabel">Status Lahan :</div>
-        <div class="statusRow">
-          <div class="statusCode" id="vStatusCode">APL</div>
-          <span id="vStatusText">Areal Penggunaan Lain</span>
-        </div>
-      </div>
-
-      <div id="sourceBlock">
-        <strong>SUMBER PETA :</strong>
-        <div>1. Surat <span id="vNama3">INUNG HARYANTO</span> Agustus 2026 perihal Permohonan Telaahan Status Kawasan.</div>
-        <div style="margin-top:3px">2. Data spasial kawasan hutan dari file <b>GeoJSON</b> yang dimuat ke aplikasi.</div>
-      </div>
-
-      <!-- Indeks Peta -->
-      <div id="indexMap">
-        <div id="indexMapTitle">
-          PETA INDEKS KABUPATEN MAMUJU<br>
-          <span style="font-weight:normal">SKALA 1 : 2.000.000</span>
-        </div>
-        <div id="indexMapEmpty">PETA INDEKS</div>
-      </div>
-
-    </aside>
-  </div>
+<div id="sheet">
+<!-- ====================== MAP ====================== -->
+<section id="mapFrame">
+<div id="mapPlaceholder"></div>
+<div id="map"></div>
+<!-- Wadah Koordinat Tepi -->
+<div class="edge-coord edge-top" id="edgeTop"></div>
+<div class="edge-coord edge-bottom" id="edgeBottom"></div>
+<div class="edge-coord edge-left" id="edgeLeft"></div>
+<div class="edge-coord edge-right" id="edgeRight"></div>
+<!-- TOMBOL TOOLS PETA -->
+<div class="map-tools">
+<button onclick="document.getElementById('basemapInput').click()">+ Basemap Lokal</button>
+<button onclick="pilihBasemapOnline()">🌐 Pilih Basemap Online</button>
+<button onclick="document.getElementById('geojsonInput').click()">+ Kawasan GeoJSON</button>
+<button onclick="fitAll()">Fit</button>
 </div>
-
+<!-- MENU BASEMAP ONLINE -->
+<div id="basemapMenu" style="display:none; position:fixed; z-index:3000; left:14px; top:60px; background:#fff; border:1px solid #555; box-shadow:0 5px 25px #0005; padding:12px 16px; border-radius:8px;">
+<div style="font-weight:bold; margin-bottom:8px;">Pilih Basemap:</div>
+<button onclick="gantiBasemap('satellite')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🛰️ Google Satellite</button>
+<button onclick="gantiBasemap('roadmap')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🗺️ Google Maps</button>
+<button onclick="gantiBasemap('hybrid')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🌍 Google Hybrid</button>
+<button onclick="gantiBasemap('none')" style="display:block; width:100%; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">❌ Hapus Basemap</button>
+<button onclick="document.getElementById('basemapMenu').style.display='none'" style="display:block; width:100%; margin-top:8px; padding:6px; cursor:pointer; border:1px solid #aaa; border-radius:4px; background:#eee;">Tutup</button>
+</div>
+<!-- INPUT FILE -->
+<input id="basemapInput" type="file" accept="image/*" onchange="loadBasemap(this)" style="display:none;">
+<input id="geojsonInput" type="file" accept=".geojson,.json,application/geo+json" onchange="loadGeoJSON(this)" style="display:none;">
+</section>
+<!-- ====================== PANEL KANAN ====================== -->
+<aside id="infoPanel">
+<div id="headerBlock">
+<h1>PETA HASIL TELAAHAN</h1>
+<div class="line upper">STATUS LAHAN <span id="vNama">INUNG HARYANTO</span></div>
+<div class="line">(SHM NOMOR : <span id="vNomor">2458/BUNDE</span>)</div>
+<div class="line upper">DESA <span id="vDesa">BUNDE</span> KECAMATAN <span id="vKec">SAMPAGA</span></div>
+<div class="line upper">KABUPATEN <span id="vKab">MAMUJU</span> PROVINSI SULAWESI BARAT</div>
+</div>
+<div id="north">
+<span class="n">U</span>
+<span class="w">B</span>
+<span class="e">T</span>
+<span class="s">S</span>
+<div class="compass"><div class="cross"></div></div>
+</div>
+<div class="scaleBlock">
+<div class="scaleTitle">SKALA&nbsp;&nbsp;1:1,000</div>
+<div class="scale">
+<div class="scaleLabels">
+<span>0</span><span>12.5</span><span>25</span><span>50</span>
+</div>
+<div class="scaleBar"><span></span><span></span><span></span><span></span></div>
+<div class="scaleUnit">Meter</div>
+</div>
+</div>
+<div class="meta">
+<div class="metaRow"><span>Proyeksi</span><span class="colon">:</span><span>Universal Transverse Mercator (UTM) Zone 50S</span></div>
+<div class="metaRow"><span>Sistem Grid</span><span class="colon">:</span><span>Grid Geografi</span></div>
+<div class="metaRow"><span>Datum Horizontal</span><span class="colon">:</span><span>WGS 84</span></div>
+</div>
+<div class="meta" id="letterBlock">
+<div class="metaRow"><span>Lampiran Surat</span><span></span><span></span></div>
+<div class="metaRow"><span>Nomor</span><span class="colon">:</span><span id="vNomor2">2458/BUNDE</span></div>
+<div class="metaRow"><span>Tanggal</span><span class="colon">:</span><span id="vTanggal">-</span></div>
+</div>
+<div id="legendBlock">
+<div class="blockTitle">KETERANGAN</div>
+<div class="legendRow">
+<div class="pinIcon"></div>
+<span>Titik Koordinat a.n. <span id="vNama2">INUNG HARYANTO</span></span>
+</div>
+<div class="statusLabel">Status Lahan :</div>
+<div class="statusRow">
+<div class="statusCode" id="vStatusCode">APL</div>
+<span id="vStatusText">Areal Penggunaan Lain</span>
+</div>
+</div>
+<div id="sourceBlock">
+<strong>SUMBER PETA :</strong>
+<div>1. Surat <span id="vNama3">INUNG HARYANTO</span> Agustus 2026 perihal Permohonan Telaahan Status Kawasan.</div>
+<div style="margin-top:3px">2. Data spasial kawasan hutan dari file <b>GeoJSON</b> yang dimuat ke aplikasi.</div>
+</div>
+<!-- Indeks Peta -->
+<div id="indexMap">
+<div id="indexMapTitle">
+PETA INDEKS KABUPATEN MAMUJU<br>
+<span style="font-weight:normal">SKALA 1 : 2.000.000</span>
+</div>
+<div id="indexMapEmpty">PETA INDEKS</div>
+</div>
+</aside>
+</div>
+</div>
 <button id="openEditor" onclick="toggleEditor()">⚙ Data / Layer</button>
-
 <div id="editor">
-  <div id="editorHead">
-    <span>DATA & LAYOUT PETA</span>
-    <button onclick="toggleEditor()">×</button>
-  </div>
-  <div class="formBody">
-
-    <!-- FITUR BARU: PENGATURAN KERAPATAN GRID -->
-    <label style="color:#173b2b; font-size:11px;">🌐 Kerapatan Grid Peta (Derajat)</label>
-    <select id="fGridInterval" onchange="drawGrid()">
-      <option value="0.0001">Sangat Rapat (0.0001° ~ 11m)</option>
-      <option value="0.0002">Rapat (0.0002° ~ 22m)</option>
-      <option value="0.0005" selected>Sedang (0.0005° ~ 55m)</option>
-      <option value="0.001">Renggang (0.001° ~ 110m)</option>
-      <option value="0.005">Sangat Renggang (0.005° ~ 550m)</option>
-    </select>
-
-    <hr>
-
-    <label>Nama Pemohon</label>
-    <input id="fNama" value="INUNG HARYANTO">
-
-    <label>Nomor Surat / SHM</label>
-    <input id="fNomor" value="2458/BUNDE">
-
-    <label>Desa</label>
-    <input id="fDesa" value="BUNDE">
-
-    <label>Kecamatan</label>
-    <input id="fKec" value="SAMPAGA">
-
-    <label>Kabupaten</label>
-    <input id="fKab" value="MAMUJU">
-
-    <label>Tanggal</label>
-    <input id="fTanggal" type="date">
-
-    <label>Status Lahan</label>
-    <select id="fStatus">
-      <option value="APL">APL — Areal Penggunaan Lain</option>
-      <option value="KH">KH — Kawasan Hutan</option>
-      <option value="SEBAGIAN">Sebagian Kawasan Hutan</option>
-      <option value="VERIFIKASI">Perlu Verifikasi</option>
-    </select>
-
-    <button onclick="applyData()">Terapkan Data</button>
-
-    <hr>
-
-    <label>Basemap lokal</label>
-    <button onclick="document.getElementById('basemapInput').click()">Pilih gambar basemap</button>
-
-    <label>Data Kawasan Hutan</label>
-    <button onclick="document.getElementById('geojsonInput').click()">Pilih kawasan_hutan.geojson</button>
-
-    <br><br>
-    <button onclick="window.print()">Cetak / Simpan PDF</button>
-  </div>
+<div id="editorHead">
+<span>DATA & LAYOUT PETA</span>
+<button onclick="toggleEditor()">×</button>
 </div>
-
+<div class="formBody">
+<!-- FITUR BARU: PENGATURAN KERAPATAN GRID -->
+<label style="color:#173b2b; font-size:11px;">🌐 Kerapatan Grid Peta (Derajat)</label>
+<select id="fGridInterval" onchange="drawGrid()">
+<option value="0.0001">Sangat Rapat (0.0001° ~ 11m)</option>
+<option value="0.0002">Rapat (0.0002° ~ 22m)</option>
+<option value="0.0005" selected>Sedang (0.0005° ~ 55m)</option>
+<option value="0.001">Renggang (0.001° ~ 110m)</option>
+<option value="0.005">Sangat Renggang (0.005° ~ 550m)</option>
+</select>
+<hr>
+<label>Nama Pemohon</label>
+<input id="fNama" value="INUNG HARYANTO">
+<label>Nomor Surat / SHM</label>
+<input id="fNomor" value="2458/BUNDE">
+<label>Desa</label>
+<input id="fDesa" value="BUNDE">
+<label>Kecamatan</label>
+<input id="fKec" value="SAMPAGA">
+<label>Kabupaten</label>
+<input id="fKab" value="MAMUJU">
+<label>Tanggal</label>
+<input id="fTanggal" type="date">
+<label>Status Lahan</label>
+<select id="fStatus">
+<option value="APL">APL — Areal Penggunaan Lain</option>
+<option value="KH">KH — Kawasan Hutan</option>
+<option value="SEBAGIAN">Sebagian Kawasan Hutan</option>
+<option value="VERIFIKASI">Perlu Verifikasi</option>
+</select>
+<button onclick="applyData()">Terapkan Data</button>
+<hr>
+<label>Basemap lokal</label>
+<button onclick="document.getElementById('basemapInput').click()">Pilih gambar basemap</button>
+<label>Data Kawasan Hutan</label>
+<button onclick="document.getElementById('geojsonInput').click()">Pilih kawasan_hutan.geojson</button>
+<br><br>
+<button onclick="window.print()">Cetak / Simpan PDF</button>
+</div>
+</div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
-
 <script>
 const initialPoints = [
-  {lon:119.16314, lat:-2.36012},
-  {lon:119.16386, lat:-2.36013},
-  {lon:119.16307, lat:-2.36060},
-  {lon:119.16388, lat:-2.36054}
+{lon:119.16314, lat:-2.36012},
+{lon:119.16386, lat:-2.36013},
+{lon:119.16307, lat:-2.36060},
+{lon:119.16388, lat:-2.36054}
 ];
 
 let map;
@@ -665,288 +624,314 @@ let markerLayer = L.layerGroup();
 let gridLayer = L.layerGroup();
 let geojsonLayer = null;
 let basemapOverlay = null;
-
 const defaultBounds = [[-2.36105,119.16292],[-2.35988,119.16408]];
 
 function pinIcon(){
-  return L.divIcon({
-    className: '',
-    html: '<div style="font-size:22px; line-height:1; text-shadow: 0 1px 4px rgba(0,0,0,0.4);">📍</div>',
-    iconSize: [28, 28],
-    iconAnchor: [14, 28]
-  });
+return L.divIcon({
+className: '',
+html: '<div style="font-size:22px; line-height:1; text-shadow: 0 1px 4px rgba(0,0,0,0.4);">📍</div>',
+iconSize: [28, 28],
+iconAnchor: [14, 28]
+});
 }
 
 function initMap(){
-  map = L.map('map',{
-    zoomControl:false,
-    attributionControl:false
-  }).fitBounds(defaultBounds);
+map = L.map('map',{
+zoomControl:false,
+attributionControl:false
+}).fitBounds(defaultBounds);
 
-  gridLayer.addTo(map);
-  markerLayer.addTo(map);
+gridLayer.addTo(map);
+markerLayer.addTo(map);
 
-  initialPoints.forEach((p,i)=>addPoint(p.lon,p.lat,i+1));
+initialPoints.forEach((p,i)=>addPoint(p.lon,p.lat,i+1));
 
-  L.marker([-2.36039,119.16351],{
-    icon:L.divIcon({
-      className:'',
-      html:'<div class="aplText">APL</div>',
-      iconSize:[50,30],
-      iconAnchor:[25,15]
-    }),
-    interactive:false
-  }).addTo(map);
+L.marker([-2.36039,119.16351],{
+icon:L.divIcon({
+className:'',
+html:'<div class="aplText">APL</div>',
+iconSize:[50,30],
+iconAnchor:[25,15]
+}),
+interactive:false
+}).addTo(map);
 
-  // gambar grid awal dan aktifkan redraw saat peta di-pan/zoom
-  drawGrid();
-  map.on('move end zoomend', drawGrid);
+// gambar grid awal dan aktifkan redraw saat peta di-pan/zoom
+drawGrid();
+// PERBAIKAN BUG #1:
+// String sebelumnya 'move end zoomend' dibaca Leaflet sebagai 3 event
+// terpisah ('move', 'end', 'zoomend'). 'end' bukan event Leaflet yang
+// valid (tidak berefek), sementara 'move' terpicu berkali-kali di setiap
+// frame saat drag sehingga drawGrid() (yang membangun ulang DOM label
+// tepi) dipanggil sangat sering dan membebani performa, terutama di HP.
+// Cukup gunakan 'moveend zoomend' agar grid digambar ulang sekali saja
+// setelah pan/zoom selesai.
+map.on('moveend zoomend', drawGrid);
 }
 
 /* =========================================================
-   FUNGSI MEMBUAT GRID PETA DINAMIS & TEPI KOORDINAT
-   ========================================================= */
+FUNGSI MEMBUAT GRID PETA DINAMIS & TEPI KOORDINAT
+========================================================= */
 function drawGrid() {
-  gridLayer.clearLayers();
+gridLayer.clearLayers();
 
-  const edgeTop = document.getElementById('edgeTop');
-  const edgeBottom = document.getElementById('edgeBottom');
-  const edgeLeft = document.getElementById('edgeLeft');
-  const edgeRight = document.getElementById('edgeRight');
+const edgeTop = document.getElementById('edgeTop');
+const edgeBottom = document.getElementById('edgeBottom');
+const edgeLeft = document.getElementById('edgeLeft');
+const edgeRight = document.getElementById('edgeRight');
 
-  edgeTop.innerHTML = '';
-  edgeBottom.innerHTML = '';
-  edgeLeft.innerHTML = '';
-  edgeRight.innerHTML = '';
+edgeTop.innerHTML = '';
+edgeBottom.innerHTML = '';
+edgeLeft.innerHTML = '';
+edgeRight.innerHTML = '';
 
-  const interval = parseFloat(document.getElementById('fGridInterval').value) || 0.0005;
-  const bounds = map.getBounds();
+const interval = parseFloat(document.getElementById('fGridInterval').value) || 0.0005;
+const bounds = map.getBounds();
 
-  const minLng = Math.floor(bounds.getWest() / interval) * interval;
-  const maxLng = Math.ceil(bounds.getEast() / interval) * interval;
-  const minLat = Math.floor(bounds.getSouth() / interval) * interval;
-  const maxLat = Math.ceil(bounds.getNorth() / interval) * interval;
+const minLng = Math.floor(bounds.getWest() / interval) * interval;
+const maxLng = Math.ceil(bounds.getEast() / interval) * interval;
+const minLat = Math.floor(bounds.getSouth() / interval) * interval;
+const maxLat = Math.ceil(bounds.getNorth() / interval) * interval;
 
-  const containerSize = map.getSize();
+const containerSize = map.getSize();
 
-  // Koordinat Bujur / X (Atas & Bawah)
-  for (let lng = minLng; lng <= maxLng; lng += interval) {
-    const point = map.latLngToContainerPoint([bounds.getNorth(), lng]);
-    if (point.x >= 0 && point.x <= containerSize.x) {
-      const pctX = (point.x / containerSize.x) * 100;
-      
-      const spanTop = document.createElement('span');
-      spanTop.style.left = pctX + '%';
-      spanTop.textContent = lng.toFixed(4);
-      edgeTop.appendChild(spanTop);
+// Koordinat Bujur / X (Atas & Bawah)
+for (let lng = minLng; lng <= maxLng; lng += interval) {
+const point = map.latLngToContainerPoint([bounds.getNorth(), lng]);
+if (point.x >= 0 && point.x <= containerSize.x) {
+const pctX = (point.x / containerSize.x) * 100;
 
-      const spanBottom = document.createElement('span');
-      spanBottom.style.left = pctX + '%';
-      spanBottom.textContent = lng.toFixed(4);
-      edgeBottom.appendChild(spanBottom);
-    }
-  }
+const spanTop = document.createElement('span');
+spanTop.style.left = pctX + '%';
+spanTop.textContent = lng.toFixed(4);
+edgeTop.appendChild(spanTop);
 
-  // Koordinat Lintang / Y (Kiri & Kanan)
-  for (let lat = minLat; lat <= maxLat; lat += interval) {
-    const point = map.latLngToContainerPoint([lat, bounds.getWest()]);
-    if (point.y >= 0 && point.y <= containerSize.y) {
-      const pctY = (point.y / containerSize.y) * 100;
-      
-      const spanLeft = document.createElement('span');
-      spanLeft.style.top = pctY + '%';
-      spanLeft.textContent = lat.toFixed(4);
-      edgeLeft.appendChild(spanLeft);
-
-      const spanRight = document.createElement('span');
-      spanRight.style.top = pctY + '%';
-      spanRight.textContent = lat.toFixed(4);
-      edgeRight.appendChild(spanRight);
-    }
-  }
+const spanBottom = document.createElement('span');
+spanBottom.style.left = pctX + '%';
+spanBottom.textContent = lng.toFixed(4);
+edgeBottom.appendChild(spanBottom);
+}
 }
 
-function addPoint(lon, lat, no){
-  const marker = L.marker([lat, lon], {icon: pinIcon()}).addTo(markerLayer);
+// Koordinat Lintang / Y (Kiri & Kanan)
+for (let lat = minLat; lat <= maxLat; lat += interval) {
+const point = map.latLngToContainerPoint([lat, bounds.getWest()]);
+if (point.y >= 0 && point.y <= containerSize.y) {
+const pctY = (point.y / containerSize.y) * 100;
 
-  marker.bindTooltip(
-    'BT :' + lon.toFixed(5) + '<br>LS :' + Math.abs(lat).toFixed(5),
-    {
-      permanent: true,
-      direction: 'right',
-      offset: [10, -10],
-      className: 'coordLabel'
-    }
-  );
+const spanLeft = document.createElement('span');
+spanLeft.style.top = pctY + '%';
+spanLeft.innerHTML = '<span class="coordText">' + lat.toFixed(4) + '</span>';
+edgeLeft.appendChild(spanLeft);
+
+const spanRight = document.createElement('span');
+spanRight.style.top = pctY + '%';
+spanRight.innerHTML = '<span class="coordText">' + lat.toFixed(4) + '</span>';
+edgeRight.appendChild(spanRight);
+}
+}
+}
+
+// PERBAIKAN BUG #2:
+// Parameter "no" sebelumnya dikirim ke fungsi tapi tidak pernah dipakai,
+// sehingga nomor urut titik (1, 2, 3, 4) hilang dari tampilan. Sekarang
+// nomor titik ditambahkan di baris pertama tooltip.
+function addPoint(lon, lat, no){
+const marker = L.marker([lat, lon], {icon: pinIcon()}).addTo(markerLayer);
+marker.bindTooltip(
+'<b>Titik ' + no + '</b><br>BT :' + lon.toFixed(5) + '<br>LS :' + Math.abs(lat).toFixed(5),
+{
+permanent: true,
+direction: 'right',
+offset: [10, -10],
+className: 'coordLabel'
+}
+);
 }
 
 function loadBasemap(input){
-  const file=input.files[0];
-  if(!file)return;
+const file=input.files[0];
+if(!file)return;
+const url=URL.createObjectURL(file);
+const img=new Image();
+img.onload=function(){
+// PERBAIKAN BUG #3:
+// Sebelumnya gambar basemap selalu dipaksa mengisi defaultBounds
+// (bounds tetap area contoh), sehingga jika rasio aspek gambar yang
+// diunggah user berbeda dari rasio area itu, gambar akan gepeng /
+// terdistorsi. Sekarang bounds dihitung dari titik tengah
+// defaultBounds, disesuaikan dengan rasio aspek asli gambar
+// (img.naturalWidth / img.naturalHeight) sambil menjaga lebar
+// (rentang longitude) tetap sama seperti defaultBounds, dan
+// menyesuaikan tinggi (rentang latitude) mengikuti rasio gambar.
+const centerLat = (defaultBounds[0][0] + defaultBounds[1][0]) / 2;
+const centerLng = (defaultBounds[0][1] + defaultBounds[1][1]) / 2;
+const lngSpan = defaultBounds[1][1] - defaultBounds[0][1];
 
-  const url=URL.createObjectURL(file);
-  const img=new Image();
-  img.onload=function(){
-    if(basemapOverlay)map.removeLayer(basemapOverlay);
+// Koreksi kasar pemendekan jarak longitude akibat garis lintang
+// (cos(lat)) agar rasio aspek di permukaan bumi mendekati rasio
+// aspek gambar asli, bukan rasio aspek dalam derajat mentah.
+const latCorrection = Math.cos(centerLat * Math.PI / 180) || 1;
+const imgAspect = img.naturalWidth / img.naturalHeight; // lebar/tinggi
+const lngSpanMeters = lngSpan * latCorrection;
+const latSpan = lngSpanMeters / imgAspect;
 
-    basemapOverlay=L.imageOverlay(url,defaultBounds,{
-      opacity:1,
-      interactive:false
-    }).addTo(map);
+const adjustedBounds = [
+[centerLat - latSpan / 2, centerLng - lngSpan / 2],
+[centerLat + latSpan / 2, centerLng + lngSpan / 2]
+];
 
-    basemapOverlay.bringToBack();
-    markerLayer.bringToFront();
-  };
-  img.src=url;
+if(basemapOverlay)map.removeLayer(basemapOverlay);
+basemapOverlay=L.imageOverlay(url,adjustedBounds,{
+opacity:1,
+interactive:false
+}).addTo(map);
+basemapOverlay.bringToBack();
+markerLayer.bringToFront();
+};
+img.src=url;
 }
 
 function loadGeoJSON(input){
-  const file=input.files[0];
-  if(!file)return;
-
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      const data=JSON.parse(e.target.result);
-      if(geojsonLayer)map.removeLayer(geojsonLayer);
-
-      geojsonLayer=L.geoJSON(data,{
-        style:function(feature){
-          return {
-            color:'#d40000',
-            weight:1.5,
-            fillColor:'#ffea00',
-            fillOpacity:.22
-          };
-        },
-        onEachFeature:function(feature,layer){
-          if(feature.properties){
-            const p=feature.properties;
-            const text=Object.keys(p).slice(0,8)
-              .map(k=>'<b>'+k+'</b>: '+p[k]).join('<br>');
-            if(text)layer.bindPopup(text);
-          }
-        }
-      }).addTo(map);
-
-      fitAll();
-    }catch(err){
-      alert('GeoJSON tidak dapat dibaca: '+err.message);
-    }
-  };
-  reader.readAsText(file);
+const file=input.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=function(e){
+try{
+const data=JSON.parse(e.target.result);
+if(geojsonLayer)map.removeLayer(geojsonLayer);
+geojsonLayer=L.geoJSON(data,{
+style:function(feature){
+return {
+color:'#d40000',
+weight:1.5,
+fillColor:'#ffea00',
+fillOpacity:.22
+};
+},
+onEachFeature:function(feature,layer){
+if(feature.properties){
+const p=feature.properties;
+const text=Object.keys(p).slice(0,8)
+.map(k=>'<b>'+k+'</b>: '+p[k]).join('<br>');
+if(text)layer.bindPopup(text);
+}
+}
+}).addTo(map);
+fitAll();
+}catch(err){
+alert('GeoJSON tidak dapat dibaca: '+err.message);
+}
+};
+reader.readAsText(file);
 }
 
 function fitAll(){
-  let layers=[];
-  if(markerLayer.getLayers().length)layers.push(markerLayer);
-  if(geojsonLayer)layers.push(geojsonLayer);
-
-  if(!layers.length)return;
-
-  const group=L.featureGroup(layers);
-  try{
-    map.fitBounds(group.getBounds().pad(.08));
-  }catch(e){}
+let layers=[];
+if(markerLayer.getLayers().length)layers.push(markerLayer);
+if(geojsonLayer)layers.push(geojsonLayer);
+if(!layers.length)return;
+const group=L.featureGroup(layers);
+try{
+map.fitBounds(group.getBounds().pad(.08));
+}catch(e){}
 }
 
 function toggleEditor(){
-  document.getElementById('editor').classList.toggle('open');
+document.getElementById('editor').classList.toggle('open');
 }
 
 function applyData(){
-  const nama=document.getElementById('fNama').value || '-';
-  const nomor=document.getElementById('fNomor').value || '-';
-  const desa=document.getElementById('fDesa').value || '-';
-  const kec=document.getElementById('fKec').value || '-';
-  const kab=document.getElementById('fKab').value || '-';
-  const tanggal=document.getElementById('fTanggal').value;
-  const status=document.getElementById('fStatus').value;
+const nama=document.getElementById('fNama').value || '-';
+const nomor=document.getElementById('fNomor').value || '-';
+const desa=document.getElementById('fDesa').value || '-';
+const kec=document.getElementById('fKec').value || '-';
+const kab=document.getElementById('fKab').value || '-';
+const tanggal=document.getElementById('fTanggal').value;
+const status=document.getElementById('fStatus').value;
 
-  document.getElementById('vNama').textContent=nama.toUpperCase();
-  document.getElementById('vNama2').textContent=nama.toUpperCase();
-  document.getElementById('vNama3').textContent=nama.toUpperCase();
-  document.getElementById('vNomor').textContent=nomor;
-  document.getElementById('vNomor2').textContent=nomor;
-  document.getElementById('vDesa').textContent=desa.toUpperCase();
-  document.getElementById('vKec').textContent=kec.toUpperCase();
-  document.getElementById('vKab').textContent=kab.toUpperCase();
+document.getElementById('vNama').textContent=nama.toUpperCase();
+document.getElementById('vNama2').textContent=nama.toUpperCase();
+document.getElementById('vNama3').textContent=nama.toUpperCase();
+document.getElementById('vNomor').textContent=nomor;
+document.getElementById('vNomor2').textContent=nomor;
+document.getElementById('vDesa').textContent=desa.toUpperCase();
+document.getElementById('vKec').textContent=kec.toUpperCase();
+document.getElementById('vKab').textContent=kab.toUpperCase();
 
-  if(tanggal){
-    const d=new Date(tanggal+'T00:00:00');
-    document.getElementById('vTanggal').textContent=
-      d.toLocaleDateString('id-ID',{
-        day:'2-digit',month:'long',year:'numeric'
-      });
-  }
+if(tanggal){
+const d=new Date(tanggal+'T00:00:00');
+document.getElementById('vTanggal').textContent=
+d.toLocaleDateString('id-ID',{
+day:'2-digit',month:'long',year:'numeric'
+});
+}
 
-  const code=document.getElementById('vStatusCode');
-  const text=document.getElementById('vStatusText');
-
-  if(status==='KH'){
-    code.textContent='KH';
-    text.textContent='Kawasan Hutan';
-  }else if(status==='SEBAGIAN'){
-    code.textContent='KH/APL';
-    text.textContent='Sebagian Kawasan Hutan';
-  }else if(status==='VERIFIKASI'){
-    code.textContent='VER';
-    text.textContent='Perlu Verifikasi';
-  }else{
-    code.textContent='APL';
-    text.textContent='Areal Penggunaan Lain';
-  }
+const code=document.getElementById('vStatusCode');
+const text=document.getElementById('vStatusText');
+if(status==='KH'){
+code.textContent='KH';
+text.textContent='Kawasan Hutan';
+}else if(status==='SEBAGIAN'){
+code.textContent='KH/APL';
+text.textContent='Sebagian Kawasan Hutan';
+}else if(status==='VERIFIKASI'){
+code.textContent='VER';
+text.textContent='Perlu Verifikasi';
+}else{
+code.textContent='APL';
+text.textContent='Areal Penggunaan Lain';
+}
 }
 
 // BASEMAP ONLINE (Google Maps)
 let onlineBasemap = null;
 
 function pilihBasemapOnline() {
-  const menu = document.getElementById('basemapMenu');
-  menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
+const menu = document.getElementById('basemapMenu');
+menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
 }
 
 function gantiBasemap(jenis) {
-  if (onlineBasemap) {
-    map.removeLayer(onlineBasemap);
-    onlineBasemap = null;
-  }
-  if (basemapOverlay) {
-    map.removeLayer(basemapOverlay);
-    basemapOverlay = null;
-  }
-  
-  if (jenis === 'none') {
-    document.getElementById('basemapMenu').style.display = 'none';
-    return;
-  }
-  
-  let lyrs = '';
-  switch(jenis) {
-    case 'satellite': lyrs = 's'; break;
-    case 'roadmap': lyrs = 'm'; break;
-    case 'hybrid': lyrs = 's,h'; break;
-    default: return;
-  }
-  
-  onlineBasemap = L.tileLayer(
-    `https://{s}.google.com/vt/lyrs=${lyrs}&x={x}&y={y}&z={z}`,
-    {
-      maxZoom: 20,
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      attribution: '&copy; Google Maps'
-    }
-  ).addTo(map);
-  
-  markerLayer.bringToFront();
-  if (geojsonLayer) geojsonLayer.bringToFront();
-  
-  document.getElementById('basemapMenu').style.display = 'none';
+if (onlineBasemap) {
+map.removeLayer(onlineBasemap);
+onlineBasemap = null;
+}
+if (basemapOverlay) {
+map.removeLayer(basemapOverlay);
+basemapOverlay = null;
+}
+
+if (jenis === 'none') {
+document.getElementById('basemapMenu').style.display = 'none';
+return;
+}
+
+let lyrs = '';
+switch(jenis) {
+case 'satellite': lyrs = 's'; break;
+case 'roadmap': lyrs = 'm'; break;
+case 'hybrid': lyrs = 's,h'; break;
+default: return;
+}
+
+onlineBasemap = L.tileLayer(
+`https://{s}.google.com/vt/lyrs=${lyrs}&x={x}&y={y}&z={z}`,
+{
+maxZoom: 20,
+subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+attribution: '&copy; Google Maps'
+}
+).addTo(map);
+
+markerLayer.bringToFront();
+if (geojsonLayer) geojsonLayer.bringToFront();
+document.getElementById('basemapMenu').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('fTanggal').value=new Date().toISOString().slice(0,10);
-  initMap();
+document.getElementById('fTanggal').value=new Date().toISOString().slice(0,10);
+initMap();
 });
 </script>
 </body>
