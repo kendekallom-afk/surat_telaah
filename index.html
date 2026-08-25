@@ -563,6 +563,15 @@ button,input,textarea,select{font-family:inherit}
 		<div class="map-tools">
 		<button onclick="document.getElementById('basemapInput').click()">+ Basemap Lokal</button>
 		<button onclick="pilihBasemapOnline()">🌐 Pilih Basemap Online</button>
+			<!-- Menu Pilihan Basemap Online -->
+<div id="basemapMenu" style="display:none; position:fixed; z-index:3000; left:14px; top:60px; background:#fff; border:1px solid #555; box-shadow:0 5px 25px #0005; padding:12px 16px; border-radius:8px;">
+  <div style="font-weight:bold; margin-bottom:8px;">Pilih Basemap:</div>
+  <button onclick="gantiBasemap('satellite')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🛰️ Google Satellite</button>
+  <button onclick="gantiBasemap('roadmap')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🗺️ Google Maps</button>
+  <button onclick="gantiBasemap('hybrid')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🌍 Google Hybrid</button>
+  <button onclick="gantiBasemap('none')" style="display:block; width:100%; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">❌ Hapus Basemap</button>
+  <button onclick="document.getElementById('basemapMenu').style.display='none'" style="display:block; width:100%; margin-top:8px; padding:6px; cursor:pointer; border:1px solid #aaa; border-radius:4px; background:#eee;">Tutup</button>
+</div>
 		<button onclick="document.getElementById('geojsonInput').click()">+ Kawasan GeoJSON</button>
 		<button onclick="fitAll()">Fit</button>
 		</div>
@@ -651,16 +660,6 @@ button,input,textarea,select{font-family:inherit}
 <button id="openEditor" onclick="toggleEditor()">⚙ Data / Layer</button>
 
 <div id="editor">
-<!-- Menu Pilihan Basemap Online -->
-<div id="basemapMenu" style="display:none; position:fixed; z-index:3000; left:14px; top:60px; background:#fff; border:1px solid #555; box-shadow:0 5px 25px #0005; padding:12px 16px; border-radius:8px;">
-  <div style="font-weight:bold; margin-bottom:8px;">Pilih Basemap:</div>
-  <button onclick="gantiBasemap('satellite')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🛰️ Google Satellite</button>
-  <button onclick="gantiBasemap('roadmap')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🗺️ Google Maps</button>
-  <button onclick="gantiBasemap('hybrid')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🌍 Google Hybrid</button>
-  <button onclick="gantiBasemap('none')" style="display:block; width:100%; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">❌ Hapus Basemap</button>
-  <button onclick="document.getElementById('basemapMenu').style.display='none'" style="display:block; width:100%; margin-top:8px; padding:6px; cursor:pointer; border:1px solid #aaa; border-radius:4px; background:#eee;">Tutup</button>
-</div>
-
   <div id="editorHead">
     <span>DATA PETA</span>
     <button onclick="toggleEditor()">×</button>
