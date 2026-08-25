@@ -10,9 +10,6 @@
   - Leaflet.js : engine tampilan peta
   - Turf.js    : disiapkan untuk analisis spasial pada tahap berikutnya
   Tidak menggunakan Esri.
-
-  Untuk penggunaan offline, file Leaflet dan Turf dapat nanti diletakkan
-  di folder /lib dan URL CDN di bawah diganti menjadi file lokal.
 -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
@@ -44,14 +41,13 @@ button,input,textarea,select{font-family:inherit}
 /* =========================================================
    PETA UTAMA
    ========================================================= */
-#mapFrame{
-  position:relative;
-  min-width:0;
-  min-height:0;
-  border:1px solid #555;
-  overflow:hidden;
-  background:
-    radial-gradient(ellipse at 25% 25%,#496a4e 0,#1e3b2c 38%,#596d4b 60%,#79806c 100%);
+#mapFrame {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #555;
+  overflow: visible;
+  background: radial-gradient(ellipse at 25% 25%,#496a4e 0,#1e3b2c 38%,#596d4b 60%,#79806c 100%);
 }
 
 #map{
@@ -60,7 +56,6 @@ button,input,textarea,select{font-family:inherit}
   z-index:1;
 }
 
-/* Saat belum ada basemap, area peta tetap terlihat */
 #mapPlaceholder{
   position:absolute;
   inset:0;
@@ -82,52 +77,97 @@ button,input,textarea,select{font-family:inherit}
   letter-spacing:.4px;
 }
 
-/* Koordinat grid/label di tepi */
-.edge-coord{
-  position:absolute;
-  z-index:600;
-  pointer-events:none;
-  font-size:11px;
-  background:#fff;
-  line-height:1;
-}
-.edge-top{
-  top:-1px;left:0;right:0;height:22px;
-  background:transparent;
-}
-.edge-top span{
-  position:absolute;
-  top:2px;
-  transform:translateX(-50%);
-}
-.edge-top span:after{
-  content:"";
-  display:block;
-  width:2px;height:8px;
-  background:#e21b1b;
-  margin:3px auto 0;
-}
-.edge-left{
-  left:-1px;top:0;bottom:0;width:25px;
-  background:transparent;
-}
-.edge-left span{
-  position:absolute;
-  left:2px;
-  transform:rotate(-90deg) translateX(-50%);
-  transform-origin:left top;
-  white-space:nowrap;
-}
-.edge-left span:before{
-  content:"";
-  display:inline-block;
-  width:8px;height:2px;
-  background:#e21b1b;
-  margin-right:4px;
-  vertical-align:middle;
+/* =========================================================
+   KOORDINAT GRID / LABEL TEPI (PERBAIKAN)
+   ========================================================= */
+.edge-coord {
+  position: absolute;
+  z-index: 600;
+  pointer-events: none;
+  font-size: 8px;
+  line-height: 1;
 }
 
-/* Tombol kecil untuk memasukkan data peta */
+/* Wadah di 4 Tepi Bingkai Peta */
+.edge-top    { top: -18px; left: 0; right: 0; height: 18px; }
+.edge-bottom { bottom: -18px; left: 0; right: 0; height: 18px; }
+.edge-left   { left: -36px; top: 0; bottom: 0; width: 34px; }
+.edge-right  { right: -36px; top: 0; bottom: 0; width: 34px; }
+
+/* Styling Umum Teks Angka Koordinat */
+.edge-top span,
+.edge-bottom span,
+.edge-left span,
+.edge-right span {
+  position: absolute;
+  font-size: 8px;
+  background: #ffffff;
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* 1. SISi ATAS: Garis merah vertikal menunjuk ke bawah */
+.edge-top span {
+  top: 0;
+  transform: translateX(-50%);
+}
+.edge-top span:after {
+  content: "";
+  display: block;
+  width: 1.5px;
+  height: 4px;
+  background: #e21b1b;
+  margin: 1px auto 0;
+}
+
+/* 2. SISI BAWAH: Garis merah vertikal menunjuk ke atas */
+.edge-bottom span {
+  bottom: 0;
+  transform: translateX(-50%);
+}
+.edge-bottom span:before {
+  content: "";
+  display: block;
+  width: 1.5px;
+  height: 4px;
+  background: #e21b1b;
+  margin: 0 auto 1px;
+}
+
+/* 3. SISI KIRI: Garis datar merah di sebelah KANAN angka (Menempel Bingkai) */
+.edge-left span {
+  right: 0;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+}
+.edge-left span:after {
+  content: "";
+  display: inline-block;
+  width: 5px;       /* Garis datar horizontal */
+  height: 1.5px;
+  background: #e21b1b;
+  margin-left: 3px;
+}
+
+/* 4. SISI KANAN: Garis datar merah di sebelah KIRI angka (Menempel Bingkai) */
+.edge-right span {
+  left: 0;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+}
+.edge-right span:before {
+  content: "";
+  display: inline-block;
+  width: 5px;       /* Garis datar horizontal */
+  height: 1.5px;
+  background: #e21b1b;
+  margin-right: 3px;
+}
+
+/* Tombol Tools Peta */
 .map-tools{
   position:absolute;
   z-index:1000;
@@ -149,7 +189,7 @@ button,input,textarea,select{font-family:inherit}
 #basemapInput,#geojsonInput{display:none}
 
 /* =========================================================
-   PANEL KANAN — DIBUAT MENIRU LAYOUT PDF
+   PANEL KANAN
    ========================================================= */
 #infoPanel{
   min-width:0;
@@ -215,7 +255,6 @@ button,input,textarea,select{font-family:inherit}
   transform:rotate(90deg);
 }
 
-/* Skala */
 .scaleBlock{
   padding:0 14px 8px;
   flex:0 0 auto;
@@ -315,7 +354,6 @@ button,input,textarea,select{font-family:inherit}
   font-weight:bold;
 }
 
-/* Sumber */
 #sourceBlock{
   border-top:1px solid #777;
   padding:11px 13px;
@@ -324,11 +362,6 @@ button,input,textarea,select{font-family:inherit}
   flex:0 0 auto;
 }
 #sourceBlock strong{font-size:10px}
-
-/* =========================================================
-   WADAH PETA INDEKS
-   Kosong dulu — nanti diisi layer peta indeks
-   ========================================================= */
 
 #indexMap{
   margin:0 10px 10px;
@@ -341,115 +374,30 @@ button,input,textarea,select{font-family:inherit}
   flex:0 0 175px;
 }
 
-/* Judul peta indeks */
 #indexMapTitle{
   position:absolute;
   z-index:3;
   top:7px;
   left:10px;
-
   background:#fff;
   border:1px solid #aaa;
-
   padding:3px 5px;
-
   font-size:9px;
   font-weight:bold;
   line-height:1.25;
 }
 
-/* Tulisan sementara di tengah wadah */
 #indexMapEmpty{
   position:absolute;
   left:50%;
   top:50%;
-
   transform:translate(-50%,-50%);
-
   color:#aaa;
   font-size:10px;
   text-align:center;
-
   pointer-events:none;
 }
 
-#indexMap:before{
-  content:"";
-
-  position:absolute;
-  inset:0;
-
-  background:
-    linear-gradient(
-      to right,
-      transparent 24.8%,
-      #ddd 25%,
-      transparent 25.2%
-    ),
-
-    linear-gradient(
-      to right,
-      transparent 49.8%,
-      #ddd 50%,
-      transparent 50.2%
-    ),
-
-    linear-gradient(
-      to right,
-      transparent 74.8%,
-      #ddd 75%,
-      transparent 75.2%
-    ),
-
-    linear-gradient(
-      to bottom,
-      transparent 24.8%,
-      #ddd 25%,
-      transparent 25.2%
-    ),
-
-    linear-gradient(
-      to bottom,
-      transparent 49.8%,
-      #ddd 50%,
-      transparent 50.2%
-    ),
-
-    linear-gradient(
-      to bottom,
-      transparent 74.8%,
-      #ddd 75%,
-      transparent 75.2%
-    );
-
-  opacity:.4;
-
-  pointer-events:none;
-}
-
-/* =========================================================
-   MARKER / LABEL
-   ========================================================= */
-.mapPin{
-  width:20px;height:28px;position:relative;
-}
-.mapPin:before{
-  content:"";
-  position:absolute;
-  width:18px;height:18px;
-  left:1px;top:1px;
-  background:#e71919;
-  border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg);
-  box-shadow:0 1px 2px #0008;
-}
-.mapPin:after{
-  content:"";
-  position:absolute;
-  width:6px;height:6px;
-  left:7px;top:7px;
-  background:#fff;border-radius:50%;
-}
 .coordLabel{
   background:#ffffaa;
   border:0;
@@ -473,13 +421,6 @@ button,input,textarea,select{font-family:inherit}
     0 0 4px #000;
 }
 
-/* Hide Leaflet attribution only visually inside the prototype.
-   It can be enabled when an actual basemap provider is connected. */
-.leaflet-control-attribution{font-size:8px}
-
-/* =========================================================
-   FORM OVERLAY — hanya untuk edit data, tidak mengubah layout
-   ========================================================= */
 #editor{
   position:fixed;
   z-index:3000;
@@ -515,7 +456,6 @@ button,input,textarea,select{font-family:inherit}
 }
 .fileNote{font-size:9px;color:#666;margin-top:4px}
 
-/* Tombol editor */
 #openEditor{
   position:fixed;z-index:2500;
   left:14px;bottom:14px;
@@ -524,12 +464,11 @@ button,input,textarea,select{font-family:inherit}
   font-size:11px;
 }
 
-/* Print */
 @media print{
   html,body{background:#fff}
   #app{padding:0}
   #sheet{border:1px solid #222;min-height:0;height:100vh;padding:24px 28px}
-  #openEditor,.map-tools,#editor{display:none!important}
+  #openEditor,.map-tools,#editor,#basemapMenu{display:none!important}
 }
 </style>
 </head>
@@ -543,16 +482,13 @@ button,input,textarea,select{font-family:inherit}
       <div id="mapPlaceholder"></div>
       <div id="map"></div>
 
-      <div class="edge-coord edge-top">
-        <span style="left:29%">119.163</span>
-        <span style="left:66%">119.164</span>
-      </div>
-      <div class="edge-coord edge-left">
-        <span style="top:35%">-2.360</span>
-        <span style="top:84%">-2.361</span>
-      </div>
+      <!-- Wadah Koordinat Tepi -->
+		<div class="edge-coord edge-top" id="edgeTop"></div>
+		<div class="edge-coord edge-bottom" id="edgeBottom"></div>
+		<div class="edge-coord edge-left" id="edgeLeft"></div>
+		<div class="edge-coord edge-right" id="edgeRight"></div>
 
-      <!-- SEMUA TOMBOL DALAM SATU GRUP -->
+      <!-- TOMBOL TOOLS PETA -->
       <div class="map-tools">
         <button onclick="document.getElementById('basemapInput').click()">+ Basemap Lokal</button>
         <button onclick="pilihBasemapOnline()">🌐 Pilih Basemap Online</button>
@@ -560,7 +496,7 @@ button,input,textarea,select{font-family:inherit}
         <button onclick="fitAll()">Fit</button>
       </div>
 
-      <!-- MENU BASEMAP ONLINE (berada di luar .map-tools agar posisi fixed berfungsi) -->
+      <!-- MENU BASEMAP ONLINE -->
       <div id="basemapMenu" style="display:none; position:fixed; z-index:3000; left:14px; top:60px; background:#fff; border:1px solid #555; box-shadow:0 5px 25px #0005; padding:12px 16px; border-radius:8px;">
         <div style="font-weight:bold; margin-bottom:8px;">Pilih Basemap:</div>
         <button onclick="gantiBasemap('satellite')" style="display:block; width:100%; margin-bottom:6px; padding:8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">🛰️ Google Satellite</button>
@@ -570,7 +506,7 @@ button,input,textarea,select{font-family:inherit}
         <button onclick="document.getElementById('basemapMenu').style.display='none'" style="display:block; width:100%; margin-top:8px; padding:6px; cursor:pointer; border:1px solid #aaa; border-radius:4px; background:#eee;">Tutup</button>
       </div>
 
-      <!-- INPUT FILE (tersembunyi) -->
+      <!-- INPUT FILE -->
       <input id="basemapInput" type="file" accept="image/*" onchange="loadBasemap(this)" style="display:none;">
       <input id="geojsonInput" type="file" accept=".geojson,.json,application/geo+json" onchange="loadGeoJSON(this)" style="display:none;">
     </section>
@@ -637,17 +573,15 @@ button,input,textarea,select{font-family:inherit}
         <div>1. Surat <span id="vNama3">INUNG HARYANTO</span> Agustus 2026 perihal Permohonan Telaahan Status Kawasan.</div>
         <div style="margin-top:3px">2. Data spasial kawasan hutan dari file <b>GeoJSON</b> yang dimuat ke aplikasi.</div>
       </div>
-    <!-- Indeks Peta -->
-      <div id="indexMap">
-    <div id="indexMapTitle">
-    PETA INDEKS KABUPATEN MAMUJU<br>
-    <span style="font-weight:normal">SKALA 1 : 2.000.000</span>
-    </div>
 
-    <div id="indexMapEmpty">
-    PETA INDEKS
-    </div>
-  </div>
+      <!-- Indeks Peta -->
+      <div id="indexMap">
+        <div id="indexMapTitle">
+          PETA INDEKS KABUPATEN MAMUJU<br>
+          <span style="font-weight:normal">SKALA 1 : 2.000.000</span>
+        </div>
+        <div id="indexMapEmpty">PETA INDEKS</div>
+      </div>
 
     </aside>
   </div>
@@ -657,10 +591,22 @@ button,input,textarea,select{font-family:inherit}
 
 <div id="editor">
   <div id="editorHead">
-    <span>DATA PETA</span>
+    <span>DATA & LAYOUT PETA</span>
     <button onclick="toggleEditor()">×</button>
   </div>
   <div class="formBody">
+
+    <!-- FITUR BARU: PENGATURAN KERAPATAN GRID -->
+    <label style="color:#173b2b; font-size:11px;">🌐 Kerapatan Grid Peta (Derajat)</label>
+    <select id="fGridInterval" onchange="drawGrid()">
+      <option value="0.0001">Sangat Rapat (0.0001° ~ 11m)</option>
+      <option value="0.0002">Rapat (0.0002° ~ 22m)</option>
+      <option value="0.0005" selected>Sedang (0.0005° ~ 55m)</option>
+      <option value="0.001">Renggang (0.001° ~ 110m)</option>
+      <option value="0.005">Sangat Renggang (0.005° ~ 550m)</option>
+    </select>
+
+    <hr>
 
     <label>Nama Pemohon</label>
     <input id="fNama" value="INUNG HARYANTO">
@@ -694,12 +640,11 @@ button,input,textarea,select{font-family:inherit}
 
     <label>Basemap lokal</label>
     <button onclick="document.getElementById('basemapInput').click()">Pilih gambar basemap</button>
-    <div class="fileNote">Tidak memakai Esri. Untuk tahap awal dapat memakai orthophoto/citra yang Anda miliki.</div>
 
     <label>Data Kawasan Hutan</label>
     <button onclick="document.getElementById('geojsonInput').click()">Pilih kawasan_hutan.geojson</button>
-    <div class="fileNote">GeoJSON akan ditampilkan sebagai layer di atas peta. Analisis Turf.js disiapkan untuk tahap berikutnya.</div>
 
+    <br><br>
     <button onclick="window.print()">Cetak / Simpan PDF</button>
   </div>
 </div>
@@ -708,9 +653,6 @@ button,input,textarea,select{font-family:inherit}
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
 
 <script>
-/* =========================================================
-   KONFIGURASI DATA CONTOH SESUAI LAYOUT PDF
-   ========================================================= */
 const initialPoints = [
   {lon:119.16314, lat:-2.36012},
   {lon:119.16386, lat:-2.36013},
@@ -720,10 +662,10 @@ const initialPoints = [
 
 let map;
 let markerLayer = L.layerGroup();
+let gridLayer = L.layerGroup();
 let geojsonLayer = null;
 let basemapOverlay = null;
 
-/* Bounds contoh — nanti diganti berdasarkan extent data sebenarnya */
 const defaultBounds = [[-2.36105,119.16292],[-2.35988,119.16408]];
 
 function pinIcon(){
@@ -736,23 +678,16 @@ function pinIcon(){
 }
 
 function initMap(){
-  /*
-    Tidak ada TileLayer Esri/Google/Mapbox.
-    Leaflet hanya menjadi engine peta.
-
-    Untuk sekarang peta memakai koordinat geografis biasa.
-    Basemap dapat dimasukkan melalui tombol "+ Basemap".
-  */
   map = L.map('map',{
     zoomControl:false,
     attributionControl:false
   }).fitBounds(defaultBounds);
 
+  gridLayer.addTo(map);
   markerLayer.addTo(map);
 
   initialPoints.forEach((p,i)=>addPoint(p.lon,p.lat,i+1));
 
-  // Label APL seperti pada layout asli
   L.marker([-2.36039,119.16351],{
     icon:L.divIcon({
       className:'',
@@ -762,6 +697,73 @@ function initMap(){
     }),
     interactive:false
   }).addTo(map);
+
+  // gambar grid awal dan aktifkan redraw saat peta di-pan/zoom
+  drawGrid();
+  map.on('move end zoomend', drawGrid);
+}
+
+/* =========================================================
+   FUNGSI MEMBUAT GRID PETA DINAMIS & TEPI KOORDINAT
+   ========================================================= */
+function drawGrid() {
+  gridLayer.clearLayers();
+
+  const edgeTop = document.getElementById('edgeTop');
+  const edgeBottom = document.getElementById('edgeBottom');
+  const edgeLeft = document.getElementById('edgeLeft');
+  const edgeRight = document.getElementById('edgeRight');
+
+  edgeTop.innerHTML = '';
+  edgeBottom.innerHTML = '';
+  edgeLeft.innerHTML = '';
+  edgeRight.innerHTML = '';
+
+  const interval = parseFloat(document.getElementById('fGridInterval').value) || 0.0005;
+  const bounds = map.getBounds();
+
+  const minLng = Math.floor(bounds.getWest() / interval) * interval;
+  const maxLng = Math.ceil(bounds.getEast() / interval) * interval;
+  const minLat = Math.floor(bounds.getSouth() / interval) * interval;
+  const maxLat = Math.ceil(bounds.getNorth() / interval) * interval;
+
+  const containerSize = map.getSize();
+
+  // Koordinat Bujur / X (Atas & Bawah)
+  for (let lng = minLng; lng <= maxLng; lng += interval) {
+    const point = map.latLngToContainerPoint([bounds.getNorth(), lng]);
+    if (point.x >= 0 && point.x <= containerSize.x) {
+      const pctX = (point.x / containerSize.x) * 100;
+      
+      const spanTop = document.createElement('span');
+      spanTop.style.left = pctX + '%';
+      spanTop.textContent = lng.toFixed(4);
+      edgeTop.appendChild(spanTop);
+
+      const spanBottom = document.createElement('span');
+      spanBottom.style.left = pctX + '%';
+      spanBottom.textContent = lng.toFixed(4);
+      edgeBottom.appendChild(spanBottom);
+    }
+  }
+
+  // Koordinat Lintang / Y (Kiri & Kanan)
+  for (let lat = minLat; lat <= maxLat; lat += interval) {
+    const point = map.latLngToContainerPoint([lat, bounds.getWest()]);
+    if (point.y >= 0 && point.y <= containerSize.y) {
+      const pctY = (point.y / containerSize.y) * 100;
+      
+      const spanLeft = document.createElement('span');
+      spanLeft.style.top = pctY + '%';
+      spanLeft.textContent = lat.toFixed(4);
+      edgeLeft.appendChild(spanLeft);
+
+      const spanRight = document.createElement('span');
+      spanRight.style.top = pctY + '%';
+      spanRight.textContent = lat.toFixed(4);
+      edgeRight.appendChild(spanRight);
+    }
+  }
 }
 
 function addPoint(lon, lat, no){
@@ -772,7 +774,7 @@ function addPoint(lon, lat, no){
     {
       permanent: true,
       direction: 'right',
-      offset: [10, -10],  // disesuaikan karena ukuran emoji lebih kecil
+      offset: [10, -10],
       className: 'coordLabel'
     }
   );
@@ -783,14 +785,8 @@ function loadBasemap(input){
   if(!file)return;
 
   const url=URL.createObjectURL(file);
-
   const img=new Image();
   img.onload=function(){
-    /*
-      Basemap lokal diletakkan mengikuti extent contoh.
-      Untuk orthophoto sebenarnya, bounds harus dibuat berdasarkan
-      koordinat sudut citra/georeferensi.
-    */
     if(basemapOverlay)map.removeLayer(basemapOverlay);
 
     basemapOverlay=L.imageOverlay(url,defaultBounds,{
@@ -809,11 +805,9 @@ function loadGeoJSON(input){
   if(!file)return;
 
   const reader=new FileReader();
-
   reader.onload=function(e){
     try{
       const data=JSON.parse(e.target.result);
-
       if(geojsonLayer)map.removeLayer(geojsonLayer);
 
       geojsonLayer=L.geoJSON(data,{
@@ -835,20 +829,11 @@ function loadGeoJSON(input){
         }
       }).addTo(map);
 
-      /*
-        Turf.js sudah tersedia.
-        Tahap berikutnya dapat menggunakan:
-        turf.booleanPointInPolygon(point, polygon)
-        atau
-        turf.intersect(polygonPermohonan, polygonKawasan)
-        untuk menentukan status kawasan.
-      */
       fitAll();
     }catch(err){
       alert('GeoJSON tidak dapat dibaca: '+err.message);
     }
   };
-
   reader.readAsText(file);
 }
 
@@ -860,7 +845,9 @@ function fitAll(){
   if(!layers.length)return;
 
   const group=L.featureGroup(layers);
-  try{map.fitBounds(group.getBounds().pad(.08));}catch(e){}
+  try{
+    map.fitBounds(group.getBounds().pad(.08));
+  }catch(e){}
 }
 
 function toggleEditor(){
@@ -911,66 +898,37 @@ function applyData(){
   }
 }
 
-// ============================================================
 // BASEMAP ONLINE (Google Maps)
-// ============================================================
-
-// Variabel untuk menyimpan basemap online
 let onlineBasemap = null;
 
-// Fungsi untuk menampilkan menu pilihan
 function pilihBasemapOnline() {
   const menu = document.getElementById('basemapMenu');
-  if (menu.style.display === 'none' || menu.style.display === '') {
-    menu.style.display = 'block';
-  } else {
-    menu.style.display = 'none';
-  }
+  menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
 }
 
-// Fungsi untuk mengganti basemap
 function gantiBasemap(jenis) {
-  // Hapus basemap online yang lama jika ada
   if (onlineBasemap) {
     map.removeLayer(onlineBasemap);
     onlineBasemap = null;
   }
-  
-  // Hapus basemap lokal (image overlay) jika ada
   if (basemapOverlay) {
     map.removeLayer(basemapOverlay);
     basemapOverlay = null;
   }
   
-  // Jika pilih 'none', hanya hapus saja
   if (jenis === 'none') {
     document.getElementById('basemapMenu').style.display = 'none';
     return;
   }
   
-  // Tentukan parameter 'lyrs' sesuai jenis peta
-  // lyrs=s = satellite, lyrs=m = roadmap, lyrs=s,h = hybrid
   let lyrs = '';
-  let nama = '';
-  
   switch(jenis) {
-    case 'satellite':
-      lyrs = 's';
-      nama = 'Google Satellite';
-      break;
-    case 'roadmap':
-      lyrs = 'm';
-      nama = 'Google Maps';
-      break;
-    case 'hybrid':
-      lyrs = 's,h';
-      nama = 'Google Hybrid';
-      break;
-    default:
-      return;
+    case 'satellite': lyrs = 's'; break;
+    case 'roadmap': lyrs = 'm'; break;
+    case 'hybrid': lyrs = 's,h'; break;
+    default: return;
   }
   
-  // Buat tile layer Google Maps
   onlineBasemap = L.tileLayer(
     `https://{s}.google.com/vt/lyrs=${lyrs}&x={x}&y={y}&z={z}`,
     {
@@ -980,14 +938,10 @@ function gantiBasemap(jenis) {
     }
   ).addTo(map);
   
-  // Pindahkan marker layer ke atas
   markerLayer.bringToFront();
   if (geojsonLayer) geojsonLayer.bringToFront();
   
-  // Tutup menu
   document.getElementById('basemapMenu').style.display = 'none';
-  
-  console.log(`✅ Basemap ${nama} berhasil dimuat!`);
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
