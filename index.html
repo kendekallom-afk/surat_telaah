@@ -465,6 +465,40 @@ html,body{background:#fff}
 #sheet{border:1px solid #222;min-height:0;height:100vh;padding:24px 28px}
 #openEditor,.map-tools,#editor,#basemapMenu{display:none!important}
 }
+@font-face {
+    font-family: 'ESRI North';
+    src: url('fonts/ESRI North.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+.compass-esri {
+    font-family: 'ESRI North', sans-serif; /* Nama harus sama dengan @font-face */
+    font-size: 32px;
+    /* properti lain */
+}
+.compass-esri {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  transform: translateX(-50%);
+  font-family: 'ESRI North', sans-serif; /* Pastikan nama font sama */
+  font-size: 32px;
+  color: #111;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+}
+.compass-img {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  transform: translate(-50%, calc(-50%)); /* Geser ke atas 10px */
+  width: 65px; /* Sesuaikan ukuran */
+  height: auto;
+  display: block;
+  z-index: 5; /* Pastikan di atas elemen lain jika perlu */
+}
 </style>
 </head>
 <body>
@@ -509,11 +543,10 @@ html,body{background:#fff}
 <div class="line upper">KABUPATEN <span id="vKab">MAMUJU</span> PROVINSI SULAWESI BARAT</div>
 </div>
 <div id="north">
-<span class="n">U</span>
-<span class="w">B</span>
-<span class="e">T</span>
-<span class="s">S</span>
-<div class="compass"><div class="cross"></div></div>
+<div id="north">
+  <!-- Kompas baru dari file SVG -->
+  <img src="images/ESRI_North-4.svg" alt="Arah Utara" class="compass-img">
+</div>
 </div>
 <div class="scaleBlock">
 <div class="scaleTitle">SKALA&nbsp;&nbsp;1:1,000</div>
